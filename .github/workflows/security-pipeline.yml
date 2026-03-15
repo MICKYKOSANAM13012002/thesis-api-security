@@ -1,0 +1,24 @@
+name: API Security Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install docker-compose -y
+
+    - name: Build and Start Services
+      run: docker-compose up -d --build
+
+    - name: Wait for services to start
+      run: sleep 20
