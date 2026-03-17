@@ -29,3 +29,10 @@ jobs:
     - name: Validate OpenAPI Specification
       run: swagger-cli validate user-service/swagger.json
 
+    - name: Run OWASP ZAP API Scan
+      run: |
+        docker run -t owasp/zap2docker-stable zap-api-scan.py \
+        -t http://localhost:3002/swagger.json \
+        -f openapi \
+        -r zap-report.html
+
