@@ -22,3 +22,10 @@ jobs:
 
     - name: Wait for Services
       run: sleep 20
+
+    - name: Install Swagger CLI
+      run: npm install -g swagger-cli
+
+    - name: Validate OpenAPI Specification
+      run: swagger-cli validate user-service/swagger.json
+
