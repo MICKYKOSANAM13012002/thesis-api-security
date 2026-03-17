@@ -5,9 +5,20 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Print Hello
-      run: echo "Pipeline working!"
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install docker-compose -y
+
+    - name: Build Containers
+      run: docker-compose up -d --build
+
+    - name: Wait for Services
+      run: sleep 20
