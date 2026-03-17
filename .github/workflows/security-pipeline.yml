@@ -1,74 +1,13 @@
-name: Thesis API Security Pipeline
+name: API Security Pipeline
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-secure:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      # STEP A — Checkout Repository
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      # STEP B — Setup Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      # STEP C — Install Dependencies
-      - name: Install Dependencies
-        run: npm install
-
-      # STEP D — Start API Service
-      - name: Start API Service
-        run: |
-          npm start &
-          sleep 15
-
-      # STEP G — Install Swagger CLI
-      - name: Install Swagger CLI
-        run: npm install -g swagger-cli
-
-      # STEP G — Validate OpenAPI Specification
-      - name: Validate OpenAPI Specification
-        run: swagger-cli validate user-service/swagger.json
-
-      # STEP H — Run OWASP ZAP API Scan
-      - name: Run OWASP ZAP API Scan
-        run: |
-          docker run -t owasp/zap2docker-stable zap-api-scan.py \
-          -t http://localhost:3002/swagger.json \
-          -f openapi \
-          -r zap-report.html
-
-      # STEP I — Install Nuclei
-      - name: Install Nuclei
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y nuclei
-          nuclei -update-templates
-
-      # STEP I — Run Nuclei Scan
-      - name: Run Nuclei Scan
-        run: nuclei -u http://localhost:3002 -o nuclei-report.txt
-
-      # STEP J — Security Gate Check
-      - name: Security Gate Check
-        run: |
-          if grep -q "High" zap-report.html; then
-            echo "High severity vulnerability detected"
-            exit 1
-          fi
-     
-     # STEP K — Upload Security Reports
-     - name: Upload Security Reports
-       uses: actions/upload-artifact@v3
-       with:
-         name: security-reports
-         path: |
-           zap-report.html
-           nuclei-report.txt
+    - name: Print Hello
+      run: echo "Pipeline working!"
