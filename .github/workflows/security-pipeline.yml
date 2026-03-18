@@ -9,15 +9,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1 — Checkout code
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # Step 2 — Install Docker Compose
       - name: Install Docker Compose
         run: sudo apt-get install docker-compose -y
 
+      # Step 3 — Build containers
       - name: Build Containers
         run: docker-compose up -d --build
 
+      # Step 4 — Wait for API service to be ready
       - name: Wait for user service
         run: |
           for i in {1..20}; do
@@ -29,16 +33,21 @@ jobs:
             sleep 5
           done
 
+      # Step 5 — Run OWASP ZAP Full Scan with volume mapping
       - name: Run OWASP ZAP Full Scan
-        uses: zaproxy/action-full-scan@v0.7.0
-        with:
-          target: 'http://localhost:3002'               # your API URL
-          docker_name: ghcr.io/zaproxy/zaproxy:stable   # correct Docker image
-          issue_title: 'ZAP Full Scan Report'           # report title
-          fail_action: false                             # do not fail workflow automatically
-          allow_issue_writing: false                     # disables GitHub issue creation
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/zap/wrk/:rw \
+            --network=host \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-full-scan.py \
+              -t http://localhost:3002 \
+              -r report_html.html \
+              -w report_md.md \
+              -J report_json.json
 
-            - name: Upload ZAP Reports
+      # Step 6 — Upload ZAP reports manually
+      - name: Upload ZAP Reports
         uses: actions/upload-artifact@v4
         with:
           name: zap-report
@@ -47,11 +56,11 @@ jobs:
             report_json.json
             report_md.md
 
-          
+      # Step 7 — Optional: Fail workflow on High severity vulnerabilities
       - name: Fail on High Severity Vulnerabilities
         run: |
-          if grep -q "High" zap-report.html; then
-            echo "High severity vulnerabilities found! Failing the build."
+          if grep -q '"risk":"High"' report_json.json; then
+            echo "High severity vulnerabilities found! Failing workflow."
             exit 1
           else
             echo "No high severity issues found."
