@@ -37,8 +37,17 @@ jobs:
           issue_title: 'ZAP Full Scan Report'           # report title
           fail_action: false                             # do not fail workflow automatically
           allow_issue_writing: false                     # disables GitHub issue creation
-          artifact_name: zap-scan                         # artifact folder name
 
+            - name: Upload ZAP Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-report
+          path: |
+            report_html.html
+            report_json.json
+            report_md.md
+
+          
       - name: Fail on High Severity Vulnerabilities
         run: |
           if grep -q "High" zap-report.html; then
