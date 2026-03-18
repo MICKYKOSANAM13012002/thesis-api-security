@@ -20,12 +20,16 @@ jobs:
     - name: Build Containers
       run: docker-compose up -d --build
 
-    - name: Wait for user-service
-      run: |
-        until curl -s http://user-service:8080/health; do
-          echo "Waiting for user-service..."
-          sleep 5
-        done
+    - name: Wait for user service
+     run: |
+     for i in {1..20}; do
+      if curl -s http://localhost:3002 > /dev/null; then
+        echo "✅ User service is up!"
+        break
+      fi
+      echo "Waiting for user service..."
+      sleep 5
+    done
 
     - name: Install Swagger CLI
       run: npm install -g swagger-cli
@@ -36,7 +40,7 @@ jobs:
     - name: Run OWASP ZAP API Scan
       run: |
         docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-          -t http://user-service:8080/openapi.yaml \
+          -t http://localhost:3002/openapi.yaml \
           -f openapi \
           -r zap-report.html
 
