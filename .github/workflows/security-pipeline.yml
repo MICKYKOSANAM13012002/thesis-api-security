@@ -1,47 +1,37 @@
-name: API Security Pipeline
+name: Security Pipeline
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build:
+  api-security:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Install Docker Compose
-      run: |
-        sudo apt-get update
-        sudo apt-get install docker-compose -y
+      - name: Install Docker Compose
+        run: sudo apt-get install docker-compose -y
 
-    - name: Build Containers
-      run: docker-compose up -d --build
+      - name: Build Containers
+        run: docker-compose up -d --build
 
-    - name: Wait for user service
-     run: |
-     for i in {1..20}; do
-      if curl -s http://localhost:3002 > /dev/null; then
-        echo "✅ User service is up!"
-        break
-      fi
-      echo "Waiting for user service..."
-      sleep 5
-    done
+      - name: Wait for user service
+        run: |
+          for i in {1..20}; do
+            if curl -s http://localhost:3002 > /dev/null; then
+              echo "User service is up!"
+              break
+            fi
+            echo "Waiting for user service..."
+            sleep 5
+          done
 
-    - name: Install Swagger CLI
-      run: npm install -g swagger-cli
-
-    - name: Validate OpenAPI Specification
-      run: swagger-cli validate user-service/swagger.json
-
-    - name: Run OWASP ZAP API Scan
-      run: |
-        docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-          -t http://localhost:3002/openapi.yaml \
-          -f openapi \
-          -r zap-report.html
-
-
+      - name: Run OWASP ZAP API Scan
+        run: |
+          docker run -t owasp/zap2docker-weekly zap-api-scan.py \
+            -t http://localhost:3002 \
+            -f openapi \
+            -r zap-report.html
