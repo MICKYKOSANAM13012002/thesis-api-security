@@ -48,7 +48,7 @@ jobs:
           done
 
             # Step 5 — Run OWASP ZAP Full Scan in headless mode
-      - name: Run OWASP ZAP Full Scan
+           - name: Run OWASP ZAP Full Scan
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/zap/wrk:rw \
