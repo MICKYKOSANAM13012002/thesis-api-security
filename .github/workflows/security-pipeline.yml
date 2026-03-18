@@ -9,19 +9,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1 — Checkout code
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2 — Install Docker Compose
       - name: Install Docker Compose
         run: sudo apt-get install docker-compose -y
 
-      # Step 3 — Build containers
       - name: Build Containers
         run: docker-compose up -d --build
 
-                 - name: Wait for services to be healthy
+      - name: Wait for services to be healthy
         run: |
           services=("auth" "user" "order")
           for svc in "${services[@]}"; do
@@ -47,8 +44,7 @@ jobs:
             fi
           done
 
-            # Step 5 — Run OWASP ZAP Full Scan in headless mode
-           - name: Run OWASP ZAP Full Scan
+      - name: Run OWASP ZAP Full Scan
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/zap/wrk:rw \
@@ -63,7 +59,6 @@ jobs:
               -z "-config api.disablekey=true" \
               -daemon
 
-           # Step 6 — Upload ZAP reports
       - name: Upload ZAP Reports
         uses: actions/upload-artifact@v4
         with:
@@ -73,7 +68,6 @@ jobs:
             report_json.json
             report_md.md
 
-            # Step 7 — Fail if High severity vulnerabilities exist
       - name: Fail on High Severity Vulnerabilities
         run: |
           if grep -q '"risk":"High"' report_json.json; then
@@ -82,4 +76,3 @@ jobs:
           else
             echo "No high severity issues found."
           fi
-

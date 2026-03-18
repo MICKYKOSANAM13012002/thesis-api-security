@@ -5,9 +5,9 @@ services:
     ports:
       - "3001:3001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/ || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 5s
-      retries: 30
+      retries: 20
       start_period: 5s
 
   user:
@@ -15,9 +15,9 @@ services:
     ports:
       - "3002:3002"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/ || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
       interval: 5s
-      retries: 30
+      retries: 20
       start_period: 5s
 
   order:
@@ -25,7 +25,8 @@ services:
     ports:
       - "3003:3003"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3003/ || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
       interval: 5s
-      retries: 30
+      retries: 20
       start_period: 5s
+
