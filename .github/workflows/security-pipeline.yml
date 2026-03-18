@@ -24,8 +24,9 @@ jobs:
       # Step 4 — Wait for API service to be ready
       - name: Wait for user service
         run: |
-          for i in {1..20}; do
-            if curl -s http://localhost:3002/ > /dev/null; then
+          for i in {1..30}; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3002/)
+            if [ "$status" -eq 200 ]; then
               echo "User service is up!"
               break
             fi
@@ -33,34 +34,23 @@ jobs:
             sleep 5
           done
 
-      # Step 4b — Optional health check for critical endpoints
-      - name: API Health Check
-        run: |
-          endpoints=( "/" "/robots.txt" "/sitemap.xml" )
-          for ep in "${endpoints[@]}"; do
-            status=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:3002$ep)
-            if [ "$status" -ge 400 ]; then
-              echo "Warning: Endpoint $ep returned $status"
-            else
-              echo "Endpoint $ep OK"
-            fi
-          done
-
-      # Step 5 — Run OWASP ZAP Full Scan with volume mapping and user permissions
+      # Step 5 — Run ZAP Full Scan in headless mode
       - name: Run OWASP ZAP Full Scan
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}:/zap/wrk/:rw \
+            -v ${{ github.workspace }}:/zap/wrk:rw \
             --network=host \
             --user $(id -u):$(id -g) \
-            ghcr.io/zaproxy/zaproxy:stable \
+            ghcr.io/zaproxy/zaproxy:latest \
             zap-full-scan.py \
               -t http://localhost:3002 \
               -r report_html.html \
               -w report_md.md \
-              -J report_json.json
+              -J report_json.json \
+              -z "-config api.disablekey=true" \
+              -daemon
 
-      # Step 6 — Upload ZAP reports manually
+      # Step 6 — Upload ZAP reports
       - name: Upload ZAP Reports
         uses: actions/upload-artifact@v4
         with:
@@ -70,7 +60,7 @@ jobs:
             report_json.json
             report_md.md
 
-      # Step 7 — Fail workflow on High severity vulnerabilities
+      # Step 7 — Fail workflow if High severity vulnerabilities found
       - name: Fail on High Severity Vulnerabilities
         run: |
           if grep -q '"risk":"High"' report_json.json; then
