@@ -37,7 +37,7 @@ jobs:
           issue_title: 'ZAP Full Scan Report'           # report title
           fail_action: false                             # do not fail workflow automatically
           allow_issue_writing: false                     # disables GitHub issue creation
-          artifact_name: zap_scan                         # artifact folder name
+          artifact_name: zap-scan                         # artifact folder name
 
       - name: Fail on High Severity Vulnerabilities
         run: |
