@@ -1,6 +1,13 @@
 const express = require("express");
 const app = express();
 
+app.use(express.json());
+
+// ✅ HEALTH ENDPOINT (VERY IMPORTANT)
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 const orders = [
   { orderId: 101, userId: 1, amount: 5000 },
   { orderId: 102, userId: 2, amount: 12000 }

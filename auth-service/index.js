@@ -4,7 +4,12 @@ const jwt = require("jsonwebtoken");
 const app = express();
 app.use(express.json());
 
-const SECRET = "hardcoded_secret"; // intentionally weak
+// ✅ HEALTH ROUTE (REQUIRED)
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+const SECRET = "hardcoded_secret";
 
 app.post("/login", (req, res) => {
   const { username } = req.body;

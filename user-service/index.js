@@ -1,6 +1,13 @@
 const express = require("express");
 const app = express();
 
+app.use(express.json());
+
+// ✅ HEALTH ENDPOINT (VERY IMPORTANT)
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 const users = [
   { id: 1, name: "Alice", email: "alice@test.com" },
   { id: 2, name: "Bob", email: "bob@test.com" }
