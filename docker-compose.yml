@@ -1,32 +1,32 @@
-version: "3.9"
+version: "3"
 services:
   auth:
     build: ./auth-service
     ports:
       - "3001:3001"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 5s
-      retries: 20
-      start_period: 5s
+      timeout: 3s
+      retries: 5
 
   user:
     build: ./user-service
     ports:
       - "3002:3002"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3002/health || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:3002/health"]
       interval: 5s
-      retries: 20
-      start_period: 5s
+      timeout: 3s
+      retries: 5
 
   order:
     build: ./order-service
     ports:
       - "3003:3003"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3003/health || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:3003/health"]
       interval: 5s
-      retries: 20
-      start_period: 5s
+      timeout: 3s
+      retries: 5
 
