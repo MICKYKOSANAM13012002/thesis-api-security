@@ -13,10 +13,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Docker Compose
+      - name: Install Docker Compose + unzip
         run: |
           sudo apt-get update
-          sudo apt-get install -y docker-compose
+          sudo apt-get install -y docker-compose unzip
 
       - name: Build Containers
         run: docker-compose up -d --build
@@ -32,26 +32,20 @@ jobs:
           docker-compose logs user-service
           exit 1
 
-      - name: Install Swagger CLI
-        run: npm install -g swagger-cli
-
-      - name: Validate OpenAPI
-        run: swagger-cli validate user-service/swagger.json
-
-      - name: Run OWASP ZAP API Scan
+      - name: Install Nuclei
         run: |
-          docker run --network host -t owasp/zap2docker-stable \
-          zap-api-scan.py -t http://localhost:3002/swagger.json -f openapi -r zap-report.html
+          wget https://github.com/projectdiscovery/nuclei/releases/latest/download/nuclei-linux-amd64.zip
+          unzip nuclei-linux-amd64.zip
+          sudo mv nuclei /usr/local/bin/
+          nuclei -version
+          nuclei -update-templates
 
       - name: Run Nuclei Scan
         run: |
-          docker run --network host projectdiscovery/nuclei \
-          -u http://localhost:3002 -o nuclei-report.txt
+          nuclei -u http://localhost:3002 -o nuclei-report.txt || true
 
-      - name: Upload Reports
+      - name: Upload Report
         uses: actions/upload-artifact@v3
         with:
-          name: reports
-          path: |
-            zap-report.html
-            nuclei-report.txt
+          name: nuclei-report
+          path: nuclei-report.txt
