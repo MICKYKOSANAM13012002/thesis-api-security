@@ -32,11 +32,15 @@ jobs:
           docker-compose logs user-service
           exit 1
 
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
       - name: Install Nuclei
         run: |
-          wget https://github.com/projectdiscovery/nuclei/releases/latest/download/nuclei-linux-amd64.zip
-          unzip nuclei-linux-amd64.zip
-          sudo mv nuclei /usr/local/bin/
+          go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+          echo "$HOME/go/bin" >> $GITHUB_PATH
           nuclei -version
           nuclei -update-templates
 
