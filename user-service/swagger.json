@@ -2,15 +2,54 @@
   "openapi": "3.0.0",
   "info": {
     "title": "User Service API",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "description": "Simple User Service API for testing"
   },
+  "servers": [
+    {
+      "url": "http://localhost:3002"
+    }
+  ],
   "paths": {
-    "/users": {
+    "/health": {
       "get": {
-        "summary": "Get users",
+        "summary": "Health check",
         "responses": {
           "200": {
-            "description": "Successful response"
+            "description": "Service is running"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Get all users",
+        "responses": {
+          "200": {
+            "description": "List of users"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Get user by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details"
+          },
+          "404": {
+            "description": "User not found"
           }
         }
       }
